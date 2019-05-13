@@ -6,6 +6,7 @@ import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.media.Schema;
 
 import java.util.Map;
+import java.util.function.UnaryOperator;
 
 import static io.swagger.codegen.v3.CodegenConstants.HAS_VALIDATION_EXT_NAME;
 
@@ -17,7 +18,7 @@ public class OpenAPIUtil {
         this.openAPI = openAPI;
     }
 
-    public void addPropertiesFromRef(Schema refSchema, CodegenProperty codegenProperty) {
+    public void addPropertiesFromRef(Schema refSchema, CodegenProperty codegenProperty, UnaryOperator<String> regexSanitizer) {
         final Map<String, Schema> allSchemas = this.openAPI.getComponents().getSchemas();
         if (allSchemas == null || allSchemas.isEmpty()) {
             return;
@@ -26,7 +27,7 @@ public class OpenAPIUtil {
         if (schema == null) {
             return;
         }
-        codegenProperty.pattern = schema.getPattern();
+        codegenProperty.pattern = regexSanitizer.apply(schema.getPattern());
         codegenProperty.minLength = schema.getMinLength();
         codegenProperty.maxLength = schema.getMaxLength();
         if (codegenProperty.pattern != null || codegenProperty.minLength != null || codegenProperty.maxLength != null) {
